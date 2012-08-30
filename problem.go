@@ -10,6 +10,8 @@ import (
 	"runtime"
 )
 
+// A Node represents a feature and its value. The Index of a feature
+// is used to uniquely identify the feature, and should start at 1.
 type Node struct {
 	Index int
 	Value float64
@@ -21,6 +23,7 @@ type TrainingVector struct {
 	Nodes []Node
 }
 
+// A problem is a set of instances and corresponding labels.
 type Problem struct {
 	problem *C.svm_problem_t
 }
@@ -36,6 +39,14 @@ func NewProblem() *Problem {
 	return problem
 }
 
+// This is a helper function that creates a problem from a two-dimensional
+// slice. Consider the following example:
+//
+//   data := [][]float64{{1.0, 0.0, 1.0}, {-1, 0.0, -1}}
+//   problem := svm.ProblemFromSlice(data)
+//
+// This fragment creates a problem consisting of two instances. For each
+// instance, three feature values are specified.
 func ProblemFromSlice(data [][]float64) *Problem {
 	problem := NewProblem()
 
