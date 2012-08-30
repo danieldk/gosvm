@@ -1,4 +1,4 @@
-package libsvm
+package gosvm
 
 /*
 #cgo LDFLAGS: -lsvm
