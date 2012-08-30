@@ -71,14 +71,19 @@ void svm_free_and_destroy_model_wrap(svm_model_t *model)
   svm_free_and_destroy_model(&model);
 }
 
+svm_model_t *svm_load_model_wrap(char const *filename)
+{
+  return svm_load_model(filename);
+}
+
 svm_model_t *svm_train_wrap(svm_problem_t *prob, svm_parameter_t *param)
 {
   return svm_train(prob, param);
 }
 
-int svm_save_model_wrap(svm_model_t const *model)
+int svm_save_model_wrap(svm_model_t const *model, char const *filename)
 {
-  return svm_save_model("bla", model);
+  return svm_save_model(filename, model);
 }
 
 double svm_predict_wrap(svm_model_t const *model, svm_node_t *nodes)
