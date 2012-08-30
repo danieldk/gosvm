@@ -8,6 +8,7 @@ import "C"
 
 import (
 	"runtime"
+	"sort"
 )
 
 // Represents a feature and its value. The Index of a feature is used
@@ -20,6 +21,8 @@ type FeatureValue struct {
 // Sparse feature vector, represented as the list (slice) of non-zero
 // features.
 type FeatureVector []FeatureValue
+
+type byIndex struct{ FeatureVector }
 
 // Training instance, consisting of the label of the instance and
 // its feature vector. In classification, the label is an integer
@@ -83,13 +86,34 @@ func cNodes(nodes []FeatureValue) *C.svm_node_t {
 }
 
 func (problem *Problem) Add(trainInst TrainingInstance) {
-	// BUG(danieldk): Feature indices should be sorted in ascending order,
-	// do this when adding a TrainingInstance to a Problem.
-	nodes := C.nodes_new(C.size_t(len(trainInst.Features)))
+	// libsvm requires the features to be sorted. So, we sort it, but
+	// let's not touch the user's slice.
+	features := make(FeatureVector, len(trainInst.Features))
+	copy(features, trainInst.Features)
+	sort.Sort(byIndex{features})
 
-	for idx, val := range trainInst.Features {
+	nodes := C.nodes_new(C.size_t(len(features)))
+
+	for idx, val := range features {
 		C.nodes_put(nodes, C.size_t(idx), C.int(val.Index), C.double(val.Value))
 	}
 
 	C.problem_add_train_inst(problem.problem, nodes, C.double(trainInst.Label))
+}
+
+// Helper functions
+
+// Interface for sorting of feature vectors by feature index.
+
+func (fv byIndex) Len() int {
+	return len(fv.FeatureVector)
+}
+
+func (fv byIndex) Swap(i, j int) {
+	fv.FeatureVector[i], fv.FeatureVector[j] =
+		fv.FeatureVector[j], fv.FeatureVector[i]
+}
+
+func (fv byIndex) Less(i, j int) bool {
+	return fv.FeatureVector[i].Index < fv.FeatureVector[j].Index
 }
