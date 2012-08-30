@@ -29,7 +29,6 @@ func (model *Model) Save() {
 }
 
 func finalizeModel(model *Model) {
-	println("finalizing the model")
 	C.svm_free_and_destroy_model_wrap(model.model)
 	model.problem = nil
 }

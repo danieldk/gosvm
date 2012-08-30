@@ -30,7 +30,6 @@ func NewProblem() *Problem {
 	problem := &Problem{cProblem}
 
 	runtime.SetFinalizer(problem, func(p *Problem) {
-		println("finalizing problem")
 		C.problem_free(p.problem)
 	})
 
