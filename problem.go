@@ -84,9 +84,3 @@ func (problem *Problem) AddTrainingVector(trainVec TrainingVector) {
 	C.problem_add_trainvec(problem.problem, nodes, C.double(trainVec.Label))
 }
 
-func (model *Model) Predict(nodes []Node) float64 {
-	cn := cNodes(nodes)
-	defer C.nodes_free(cNodes(nodes))
-	return float64(C.svm_predict_wrap(model.model, cn))
-
-}
