@@ -15,7 +15,7 @@ svm_parameter_t *parameter_new();
 
 svm_problem_t *problem_new();
 void problem_free(svm_problem_t *problem);
-void problem_add_trainvec(svm_problem_t *problem, svm_node_t *nodes,
+void problem_add_train_inst(svm_problem_t *problem, svm_node_t *nodes,
   double label);
 
 double svm_predict_wrap(svm_model_t const *model, svm_node_t *nodes);

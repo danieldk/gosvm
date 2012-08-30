@@ -10,17 +10,25 @@ import (
 	"runtime"
 )
 
-// A Node represents a feature and its value. The Index of a feature
-// is used to uniquely identify the feature, and should start at 1.
-type Node struct {
+// Represents a feature and its value. The Index of a feature is used
+// to uniquely identify the feature, and should start at 1.
+type FeatureValue struct {
 	Index int
 	Value float64
 }
 
-// XXX - Indices must be sorted in ascending order!
-type TrainingVector struct {
-	Label float64
-	Nodes []Node
+// Sparse feature vector, represented as the list (slice) of non-zero
+// features.
+type FeatureVector []FeatureValue
+
+// Training instance, consisting of the label of the instance and
+// its feature vector. In classification, the label is an integer
+// indicating the class label. In regression, the label is the
+// target value, which can be any real number. The label is not used
+// for one-class SVMs.
+type TrainingInstance struct {
+	Label    float64
+	Features FeatureVector
 }
 
 // A problem is a set of instances and corresponding labels.
@@ -51,20 +59,20 @@ func ProblemFromSlice(data [][]float64) *Problem {
 	problem := NewProblem()
 
 	for exIdx, vals := range data {
-		nodes := make([]Node, len(vals))
+		nodes := make([]FeatureValue, len(vals))
 
 		for valIdx, val := range vals {
-			nodes[valIdx] = Node{valIdx + 1, val}
+			nodes[valIdx] = FeatureValue{valIdx + 1, val}
 		}
 
-		trainVec := TrainingVector{float64(exIdx), nodes}
-		problem.AddTrainingVector(trainVec)
+		trainVec := TrainingInstance{float64(exIdx), nodes}
+		problem.Add(trainVec)
 	}
 
 	return problem
 }
 
-func cNodes(nodes []Node) *C.svm_node_t {
+func cNodes(nodes []FeatureValue) *C.svm_node_t {
 	n := C.nodes_new(C.size_t(len(nodes)))
 
 	for idx, val := range nodes {
@@ -74,13 +82,14 @@ func cNodes(nodes []Node) *C.svm_node_t {
 	return n
 }
 
-func (problem *Problem) AddTrainingVector(trainVec TrainingVector) {
-	nodes := C.nodes_new(C.size_t(len(trainVec.Nodes)))
+func (problem *Problem) Add(trainInst TrainingInstance) {
+	// BUG(danieldk): Feature indices should be sorted in ascending order,
+	// do this when adding a TrainingInstance to a Problem.
+	nodes := C.nodes_new(C.size_t(len(trainInst.Features)))
 
-	for idx, val := range trainVec.Nodes {
+	for idx, val := range trainInst.Features {
 		C.nodes_put(nodes, C.size_t(idx), C.int(val.Index), C.double(val.Value))
 	}
 
-	C.problem_add_trainvec(problem.problem, nodes, C.double(trainVec.Label))
+	C.problem_add_train_inst(problem.problem, nodes, C.double(trainInst.Label))
 }
-

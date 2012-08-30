@@ -45,7 +45,7 @@ void problem_free(svm_problem_t *problem)
   free(problem);
 }
 
-void problem_add_trainvec(svm_problem_t *problem, svm_node_t *nodes,
+void problem_add_train_inst(svm_problem_t *problem, svm_node_t *nodes,
   double label)
 {
   ++problem->l;
