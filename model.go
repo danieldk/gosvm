@@ -38,13 +38,22 @@ func LoadModel(filename string) (*Model, error) {
 	return model, nil
 }
 
-// Train an SVM using the given problem.
-func TrainModel(problem *Problem) *Model {
-	param := C.parameter_new()
-	cmodel := C.svm_train_wrap(problem.problem, param)
+// Train an SVM using the given parameters and problem.
+func TrainModel(param Parameters, problem *Problem) (*Model, error) {
+	cParam := toCParameter(param)
+	defer C.free(unsafe.Pointer(cParam))
+
+	// Check validity of the parameters.
+	r := C.svm_check_parameter_wrap(problem.problem, cParam)
+	if r != nil {
+		msg := C.GoString(r)
+		return nil, errors.New(msg)
+	}
+
+	cmodel := C.svm_train_wrap(problem.problem, cParam)
 	model := &Model{cmodel, problem}
 	runtime.SetFinalizer(model, finalizeModel)
-	return model
+	return model, nil
 }
 
 // Predict the label of an instance using the given model.

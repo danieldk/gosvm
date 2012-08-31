@@ -32,9 +32,6 @@ svm_parameter_t *parameter_new()
 {
   svm_parameter_t *param = malloc(sizeof(svm_parameter_t));
   memset(param, 0, sizeof(svm_parameter_t));
-  param->cache_size = 1;
-  param->eps = 0.001;
-  param->C = 10;
   return param;
 }
 
@@ -64,6 +61,13 @@ svm_problem_t *problem_new()
   problem->x = malloc(0);
 
   return problem;
+}
+
+
+char const *svm_check_parameter_wrap(svm_problem_t *prob,
+    svm_parameter_t *param)
+{
+  return svm_check_parameter(prob, param);
 }
 
 void svm_free_and_destroy_model_wrap(svm_model_t *model)
