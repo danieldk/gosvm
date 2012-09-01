@@ -75,6 +75,23 @@ func ProblemFromSlice(data [][]float64) *Problem {
 	return problem
 }
 
+// Convert a dense feature vector, represented as a slice of feature
+// values to the sparse representation used by this package. The
+// features will be numbered 1..len(denseVector). The following vectors
+// will be equal:
+//
+//     gosvm.FromDenseVector([]float64{0.2, 0.1, 0.3, 0.6})
+//     gosvm.FeatureVector{{1, 0.2}, {2, 0.1}, {3, 0.3}, {4, 0.6}}
+func FromDenseVector(denseVector []float64) FeatureVector {
+	fv := make(FeatureVector, len(denseVector))
+
+	for idx, val := range denseVector {
+		fv[idx] = FeatureValue{idx + 1, val}
+	}
+
+	return fv
+}
+
 func cNodes(nodes []FeatureValue) *C.svm_node_t {
 	n := C.nodes_new(C.size_t(len(nodes)))
 
