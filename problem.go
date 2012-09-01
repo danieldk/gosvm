@@ -50,31 +50,6 @@ func NewProblem() *Problem {
 	return problem
 }
 
-// This is a helper function that creates a problem from a two-dimensional
-// slice. Consider the following example:
-//
-//   data := [][]float64{{1.0, 0.0, 1.0}, {-1, 0.0, -1}}
-//   problem := svm.ProblemFromSlice(data)
-//
-// This fragment creates a problem consisting of two instances. For each
-// instance, three feature values are specified.
-func ProblemFromSlice(data [][]float64) *Problem {
-	problem := NewProblem()
-
-	for exIdx, vals := range data {
-		nodes := make([]FeatureValue, len(vals))
-
-		for valIdx, val := range vals {
-			nodes[valIdx] = FeatureValue{valIdx + 1, val}
-		}
-
-		trainVec := TrainingInstance{float64(exIdx), nodes}
-		problem.Add(trainVec)
-	}
-
-	return problem
-}
-
 // Convert a dense feature vector, represented as a slice of feature
 // values to the sparse representation used by this package. The
 // features will be numbered 1..len(denseVector). The following vectors
