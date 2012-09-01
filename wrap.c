@@ -46,9 +46,9 @@ void problem_add_train_inst(svm_problem_t *problem, svm_node_t *nodes,
   double label)
 {
   ++problem->l;
-  problem->y = realloc(problem->y, problem->l);
+  problem->y = realloc(problem->y, problem->l * sizeof(double));
   problem->y[problem->l - 1] = label;
-  problem->x = realloc(problem->x, problem->l);
+  problem->x = realloc(problem->x, problem->l * sizeof(svm_node_t *));
   problem->x[problem->l - 1] = nodes;
 }
 
