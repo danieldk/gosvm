@@ -6,7 +6,7 @@
 // saved to and loaded from disk, to avoid the (potentially) costly training
 // process.
 //
-// A model is trained using a Problem. A problem consists of training
+// A model is trained using a problem. A problem consists of training
 // instances, where each training instance has a class label and a feature
 // vector. The training procedure attempts to find one or more functions
 // that separate the instances of two classes. This model can then predict
