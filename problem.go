@@ -78,11 +78,7 @@ func cNodes(nodes []FeatureValue) *C.svm_node_t {
 }
 
 func (problem *Problem) Add(trainInst TrainingInstance) {
-	// libsvm requires the features to be sorted. So, we sort it, but
-	// let's not touch the user's slice.
-	features := make(FeatureVector, len(trainInst.Features))
-	copy(features, trainInst.Features)
-	sort.Sort(byIndex{features})
+	features := sortedFeatureVector(trainInst.Features)
 
 	nodes := C.nodes_new(C.size_t(len(features)))
 
@@ -94,6 +90,15 @@ func (problem *Problem) Add(trainInst TrainingInstance) {
 }
 
 // Helper functions
+
+func sortedFeatureVector(fv FeatureVector) FeatureVector {
+	sorted := make(FeatureVector, len(fv))
+	copy(sorted, fv)
+
+	sort.Sort(byIndex{sorted})
+
+	return sorted
+}
 
 // Interface for sorting of feature vectors by feature index.
 
