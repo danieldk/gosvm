@@ -20,11 +20,10 @@
 //
 // To represent this as an SVM problem, we have to convert the classses
 // (positive/negative) to an integral class labels and extract features.
-// In this case, we can simply label the classes as 0 -> positive, 1 ->
-// negative. We will simply use the words as our features
-// (A: 1, beautiful:  2, album: 3, crappy: 4, ugly: 5) and use booleans
-// as our feature values. In other words, the sentences will have the
-// following feature vectors:
+// In this case, we can simply label the classes as positive: 0,
+// negative: 1. We will use the words as our features (a: 1, beautiful:
+// 2, album: 3, crappy: 4, ugly: 5) and use booleans as our feature values.
+// In other words, the sentences will have the following feature vectors:
 //
 //                 1   2   3   4   5
 //               +---+---+---+---+---+
@@ -37,8 +36,6 @@
 //
 // We can now construct the problem using this representation:
 //
-//     // Our training data consists of two instances, with labels 1 and 2,
-//     // and their corresponding feature vectors.
 //     problem := gosvm.NewProblem()
 //     problem.Add(gosvm.TrainingInstance{0, gosvm.FromDenseVector([]float64{1, 1, 1, 0, 0})})
 //     problem.Add(gosvm.TrainingInstance{1, gosvm.FromDenseVector([]float64{1, 0, 1, 1, 1})})
@@ -47,7 +44,6 @@
 // the SVM type, the kernel, etc. We will use the default parameters, which
 // train a C-SVC using a linear kernel:
 //
-//     // Train the SVM using default parameters.
 //     param := gosvm.DefaultParameters()
 //     model, err := gosvm.TrainModel(param, problem)
 //     if err != nil {
@@ -70,6 +66,7 @@
 // The Predict method of the model is used to predict the label of this
 // feature vector.
 //
-//     // Predict the label of the given vector (label == 0).
 //     label := model.Predict(gosvm.FromDenseVector([]float64{1, 1, 0, 0, 0}))
+//
+// As expected, the model will predict the sentence to be positive (0).
 package gosvm
