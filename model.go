@@ -63,7 +63,7 @@ func TrainModel(param Parameters, problem *Problem) (*Model, error) {
 // Predict the label of an instance using the given model.
 func (model *Model) Predict(nodes []FeatureValue) float64 {
 	cn := cNodes(nodes)
-	defer C.nodes_free(cNodes(nodes))
+	defer C.nodes_free(cn)
 	return float64(C.svm_predict_wrap(model.model, cn))
 }
 
