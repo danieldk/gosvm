@@ -41,7 +41,11 @@ func LoadModel(filename string) (*Model, error) {
 // Train an SVM using the given parameters and problem.
 func TrainModel(param Parameters, problem *Problem) (*Model, error) {
 	cParam := toCParameter(param)
-	defer C.free(unsafe.Pointer(cParam))
+	defer func() {
+		C.svm_destroy_param_wrap(cParam)
+		C.free(unsafe.Pointer(cParam))
+	}()
+//	defer C.free(unsafe.Pointer(cParam))
 
 	// Check validity of the parameters.
 	r := C.svm_check_parameter_wrap(problem.problem, cParam)

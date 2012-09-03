@@ -70,6 +70,11 @@ char const *svm_check_parameter_wrap(svm_problem_t *prob,
   return svm_check_parameter(prob, param);
 }
 
+void svm_destroy_param_wrap(svm_parameter_t* param)
+{
+  return svm_destroy_param(param);
+}
+
 void svm_free_and_destroy_model_wrap(svm_model_t *model)
 {
   svm_free_and_destroy_model(&model);

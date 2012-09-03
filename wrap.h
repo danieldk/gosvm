@@ -21,6 +21,7 @@ void problem_add_train_inst(svm_problem_t *problem, svm_node_t *nodes,
 char const *svm_check_parameter_wrap(svm_problem_t *prob,
     svm_parameter_t *param);
 svm_model_t *svm_load_model_wrap(char const *filename);
+void svm_destroy_param_wrap(svm_parameter_t* param);
 double svm_predict_wrap(svm_model_t const *model, svm_node_t *nodes);
 int svm_save_model_wrap(svm_model_t const *model, char const *filename);
 svm_model_t *svm_train_wrap(svm_problem_t *prob, svm_parameter_t *param);
