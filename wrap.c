@@ -63,6 +63,30 @@ svm_problem_t *problem_new()
   return problem;
 }
 
+int *labels_new(int n)
+{
+  int *labels = malloc(n * sizeof(int));
+  memset(labels, 0, n * sizeof(int));
+  return labels;
+}
+
+double *probs_new(svm_model_t *model)
+{
+  int nClasses = svm_get_nr_class(model);
+  double *probs = malloc(nClasses * sizeof(double));
+  memset(probs, 0, nClasses * sizeof(double));
+  return probs;
+}
+
+double get_double_idx(double *arr, int idx)
+{
+  return arr[idx];
+}
+
+int get_int_idx(int *arr, int idx)
+{
+  return arr[idx];
+}
 
 char const *svm_check_parameter_wrap(svm_problem_t *prob,
     svm_parameter_t *param)
@@ -70,14 +94,29 @@ char const *svm_check_parameter_wrap(svm_problem_t *prob,
   return svm_check_parameter(prob, param);
 }
 
+int svm_check_probability_model_wrap(svm_model_t const *model)
+{
+  return svm_check_probability_model(model);
+}
+
 void svm_destroy_param_wrap(svm_parameter_t* param)
 {
   return svm_destroy_param(param);
 }
 
+void svm_get_labels_wrap(svm_model_t const *model, int *label)
+{
+  svm_get_labels(model, label);
+}
+
 void svm_free_and_destroy_model_wrap(svm_model_t *model)
 {
   svm_free_and_destroy_model(&model);
+}
+
+int svm_get_nr_class_wrap(svm_model_t const *model)
+{
+  return svm_get_nr_class(model);
 }
 
 svm_model_t *svm_load_model_wrap(char const *filename)
@@ -93,6 +132,12 @@ svm_model_t *svm_train_wrap(svm_problem_t *prob, svm_parameter_t *param)
 int svm_save_model_wrap(svm_model_t const *model, char const *filename)
 {
   return svm_save_model(filename, model);
+}
+
+double svm_predict_probability_wrap(svm_model_t const *model, 
+    svm_node_t const *x, double *prob_estimates)
+{
+  return svm_predict_probability(model, x, prob_estimates);
 }
 
 double svm_predict_wrap(svm_model_t const *model, svm_node_t *nodes)

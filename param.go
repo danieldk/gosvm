@@ -7,11 +7,12 @@ import "C"
 
 // Parameters for training an SVM.
 type Parameters struct {
-	SVMType   SVMType
-	Kernel    Kernel
-	CacheSize float64 // Cache size in MB
-	Epsilon   float64 // Stopping criterium
-	Shrinking bool    // Apply shrinking
+	SVMType     SVMType
+	Kernel      Kernel
+	CacheSize   float64 // Cache size in MB
+	Epsilon     float64 // Stopping criterium
+	Shrinking   bool    // Apply shrinking
+	Probability bool    // Provide probability estimates
 }
 
 // Default training parameters: C-SVM classification with a constraint
@@ -23,6 +24,7 @@ func DefaultParameters() Parameters {
 		NewLinearKernel(),
 		1,
 		0.001,
+		false,
 		false}
 }
 
@@ -107,6 +109,10 @@ func toCParameter(param Parameters) *C.svm_parameter_t {
 
 	if param.Shrinking {
 		cParam.shrinking = 1
+	}
+
+	if param.Probability {
+		cParam.probability = 1
 	}
 
 	return cParam
