@@ -34,7 +34,7 @@ func TestPredict(t *testing.T) {
 
 	check2 := model.Predict(FromDenseVector([]float64{0, 0, 0, 1, 1}))
 	if check2 != 1.0 {
-		t.Errorf("Predict(check2) = %f, want 1.0", check1)
+		t.Errorf("Predict(check2) = %f, want 1.0", check2)
 	}
 }
 
