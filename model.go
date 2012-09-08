@@ -1,6 +1,7 @@
 package gosvm
 
 /*
+#cgo CFLAGS: -I/usr/include/libsvm
 #cgo LDFLAGS: -lsvm
 #include <stdlib.h>
 
