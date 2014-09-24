@@ -1,3 +1,8 @@
+## Warning
+
+I put this repository back after someone's request. I do not intend to
+maintain it or fix any issues with it ;).
+
 ## Introduction
 
 gosvm is a package for training and using support vector machines (SVM)
