@@ -64,14 +64,14 @@ func TrainModel(param Parameters, problem *Problem) (*Model, error) {
 // Get a slice with class labels
 func (model *Model) labels() []int {
 	nClasses := C.svm_get_nr_class_wrap(model.model)
-	cLabels := C.labels_new(nClasses)
+	cLabels := C.gosvm_labels_new(nClasses)
 	defer C.free(unsafe.Pointer(cLabels))
 	C.svm_get_labels_wrap(model.model, cLabels)
 
 	labels := make([]int, int(nClasses))
 
 	for idx, _ := range labels {
-		labels[idx] = int(C.get_int_idx(cLabels, C.int(idx)))
+		labels[idx] = int(C.gosvm_get_int_idx(cLabels, C.int(idx)))
 	}
 
 	return labels
@@ -80,7 +80,7 @@ func (model *Model) labels() []int {
 // Predict the label of an instance using the given model.
 func (model *Model) Predict(nodes []FeatureValue) float64 {
 	cn := cNodes(nodes)
-	defer C.nodes_free(cn)
+	defer C.gosvm_nodes_free(cn)
 	return float64(C.svm_predict_wrap(model.model, cn))
 }
 
@@ -95,10 +95,10 @@ func (model *Model) PredictProbability(nodes []FeatureValue) (float64, map[int]f
 
 	// Allocate sparse C feature vector.
 	cn := cNodes(nodes)
-	defer C.nodes_free(cn)
+	defer C.gosvm_nodes_free(cn)
 
 	// Allocate C array for probabilities.
-	cProbs := C.probs_new(model.model)
+	cProbs := C.gosvm_probs_new(model.model)
 	defer C.free(unsafe.Pointer(cProbs))
 
 	r := C.svm_predict_probability_wrap(model.model, cn, cProbs)
@@ -107,7 +107,7 @@ func (model *Model) PredictProbability(nodes []FeatureValue) (float64, map[int]f
 	labels := model.labels()
 	probs := make(map[int]float64)
 	for idx, label := range labels {
-		probs[label] = float64(C.get_double_idx(cProbs, C.int(idx)))
+		probs[label] = float64(C.gosvm_get_double_idx(cProbs, C.int(idx)))
 	}
 
 	return float64(r), probs, nil

@@ -90,7 +90,7 @@ func NewNuSVR(cost, nu float64) SVMType {
 }
 
 func toCParameter(param Parameters) *C.svm_parameter_t {
-	cParam := C.parameter_new()
+	cParam := C.gosvm_parameter_new()
 
 	// SVM type parameters
 	cParam.svm_type = param.SVMType.svmType

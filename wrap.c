@@ -5,7 +5,7 @@
 #include "wrap.h"
 
 
-svm_node_t *nodes_new(size_t n)
+svm_node_t *gosvm_nodes_new(size_t n)
 {
   svm_node_t *nodes = malloc((n + 1) * sizeof(svm_node_t));
 
@@ -16,33 +16,33 @@ svm_node_t *nodes_new(size_t n)
   return nodes;
 }
 
-void nodes_free(svm_node_t *nodes)
+void gosvm_nodes_free(svm_node_t *nodes)
 {
   free(nodes);
 }
 
-void nodes_put(svm_node_t *nodes, size_t nodes_idx, int idx,
+void gosvm_nodes_put(svm_node_t *nodes, size_t nodes_idx, int idx,
   double value)
 {
   nodes[nodes_idx].index = idx;
   nodes[nodes_idx].value = value;
 }
 
-svm_parameter_t *parameter_new()
+svm_parameter_t *gosvm_parameter_new()
 {
   svm_parameter_t *param = malloc(sizeof(svm_parameter_t));
   memset(param, 0, sizeof(svm_parameter_t));
   return param;
 }
 
-void problem_free(svm_problem_t *problem)
+void gosvm_problem_free(svm_problem_t *problem)
 {
   free(problem->x);
   free(problem->y);
   free(problem);
 }
 
-void problem_add_train_inst(svm_problem_t *problem, svm_node_t *nodes,
+void gosvm_problem_add_train_inst(svm_problem_t *problem, svm_node_t *nodes,
   double label)
 {
   ++problem->l;
@@ -52,7 +52,7 @@ void problem_add_train_inst(svm_problem_t *problem, svm_node_t *nodes,
   problem->x[problem->l - 1] = nodes;
 }
 
-svm_problem_t *problem_new()
+svm_problem_t *gosvm_problem_new()
 {
   svm_problem_t *problem = malloc(sizeof(svm_problem_t));
 
@@ -63,14 +63,14 @@ svm_problem_t *problem_new()
   return problem;
 }
 
-int *labels_new(int n)
+int *gosvm_labels_new(int n)
 {
   int *labels = malloc(n * sizeof(int));
   memset(labels, 0, n * sizeof(int));
   return labels;
 }
 
-double *probs_new(svm_model_t *model)
+double *gosvm_probs_new(svm_model_t *model)
 {
   int nClasses = svm_get_nr_class(model);
   double *probs = malloc(nClasses * sizeof(double));
@@ -78,12 +78,12 @@ double *probs_new(svm_model_t *model)
   return probs;
 }
 
-double get_double_idx(double *arr, int idx)
+double gosvm_get_double_idx(double *arr, int idx)
 {
   return arr[idx];
 }
 
-int get_int_idx(int *arr, int idx)
+int gosvm_get_int_idx(int *arr, int idx)
 {
   return arr[idx];
 }

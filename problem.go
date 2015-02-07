@@ -40,11 +40,11 @@ type Problem struct {
 }
 
 func NewProblem() *Problem {
-	cProblem := C.problem_new()
+	cProblem := C.gosvm_problem_new()
 	problem := &Problem{cProblem}
 
 	runtime.SetFinalizer(problem, func(p *Problem) {
-		C.problem_free(p.problem)
+		C.gosvm_problem_free(p.problem)
 	})
 
 	return problem
@@ -68,10 +68,10 @@ func FromDenseVector(denseVector []float64) FeatureVector {
 }
 
 func cNodes(nodes []FeatureValue) *C.svm_node_t {
-	n := C.nodes_new(C.size_t(len(nodes)))
+	n := C.gosvm_nodes_new(C.size_t(len(nodes)))
 
 	for idx, val := range nodes {
-		C.nodes_put(n, C.size_t(idx), C.int(val.Index), C.double(val.Value))
+		C.gosvm_nodes_put(n, C.size_t(idx), C.int(val.Index), C.double(val.Value))
 	}
 
 	return n
@@ -80,13 +80,13 @@ func cNodes(nodes []FeatureValue) *C.svm_node_t {
 func (problem *Problem) Add(trainInst TrainingInstance) {
 	features := sortedFeatureVector(trainInst.Features)
 
-	nodes := C.nodes_new(C.size_t(len(features)))
+	nodes := C.gosvm_nodes_new(C.size_t(len(features)))
 
 	for idx, val := range features {
-		C.nodes_put(nodes, C.size_t(idx), C.int(val.Index), C.double(val.Value))
+		C.gosvm_nodes_put(nodes, C.size_t(idx), C.int(val.Index), C.double(val.Value))
 	}
 
-	C.problem_add_train_inst(problem.problem, nodes, C.double(trainInst.Label))
+	C.gosvm_problem_add_train_inst(problem.problem, nodes, C.double(trainInst.Label))
 }
 
 // Helper functions

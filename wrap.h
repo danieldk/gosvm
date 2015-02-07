@@ -6,24 +6,24 @@ typedef struct svm_node svm_node_t;
 typedef struct svm_parameter svm_parameter_t;
 typedef struct svm_problem svm_problem_t;
 
-svm_node_t *nodes_new(size_t n);
-void nodes_free(svm_node_t *nodes);
-void nodes_put(svm_node_t *nodes, size_t node_idx, int idx,
+svm_node_t *gosvm_nodes_new(size_t n);
+void gosvm_nodes_free(svm_node_t *nodes);
+void gosvm_nodes_put(svm_node_t *nodes, size_t node_idx, int idx,
   double value);
 
-svm_parameter_t *parameter_new();
+svm_parameter_t *gosvm_parameter_new();
 
-svm_problem_t *problem_new();
-void problem_free(svm_problem_t *problem);
-void problem_add_train_inst(svm_problem_t *problem, svm_node_t *nodes,
+svm_problem_t *gosvm_problem_new();
+void gosvm_problem_free(svm_problem_t *problem);
+void gosvm_problem_add_train_inst(svm_problem_t *problem, svm_node_t *nodes,
   double label);
 
-int *labels_new(int n);
-double *probs_new(svm_model_t *model);
+int *gosvm_labels_new(int n);
+double *gosvm_probs_new(svm_model_t *model);
 
 // Can we do this directly in Go?
-double get_double_idx(double *arr, int idx);
-int get_int_idx(int *arr, int idx);
+double gosvm_get_double_idx(double *arr, int idx);
+int gosvm_get_int_idx(int *arr, int idx);
 
 char const *svm_check_parameter_wrap(svm_problem_t *prob,
     svm_parameter_t *param);
