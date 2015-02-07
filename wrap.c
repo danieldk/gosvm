@@ -28,6 +28,16 @@ void gosvm_nodes_put(svm_node_t *nodes, size_t nodes_idx, int idx,
   nodes[nodes_idx].value = value;
 }
 
+svm_node_t gosvm_nodes_get(svm_node_t *nodes, size_t idx)
+{
+  return nodes[idx];
+}
+
+svm_node_t *gosvm_nodes_vector_get(svm_problem_t *problem, size_t idx)
+{
+  return problem->x[idx];
+}
+
 svm_parameter_t *gosvm_parameter_new()
 {
   svm_parameter_t *param = malloc(sizeof(svm_parameter_t));
@@ -77,6 +87,17 @@ double *gosvm_probs_new(svm_model_t *model)
   memset(probs, 0, nClasses * sizeof(double));
   return probs;
 }
+
+double *gosvm_double_new(size_t n)
+{
+  double *r = malloc(n * sizeof(double));
+  if (r == NULL) {
+    return NULL;
+  }
+  memset(r, 0, n * sizeof(double));
+  return r;
+}
+
 
 double gosvm_get_double_idx(double *arr, int idx)
 {
@@ -138,6 +159,12 @@ double svm_predict_probability_wrap(svm_model_t const *model,
     svm_node_t const *x, double *prob_estimates)
 {
   return svm_predict_probability(model, x, prob_estimates);
+}
+
+double svm_predict_values_wrap(svm_model_t const *model,
+    svm_node_t const *x, double *dec_values)
+{
+  return svm_predict_values(model, x, dec_values);
 }
 
 double svm_predict_wrap(svm_model_t const *model, svm_node_t *nodes)

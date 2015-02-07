@@ -2,11 +2,14 @@ package gosvm
 
 /*
 #cgo LDFLAGS: -lsvm
+#include <stddef.h>
 #include "wrap.h"
 */
 import "C"
 
 import (
+	"errors"
+	"fmt"
 	"runtime"
 	"sort"
 )
@@ -37,17 +40,22 @@ type TrainingInstance struct {
 // A problem is a set of instances and corresponding labels.
 type Problem struct {
 	problem *C.svm_problem_t
+	insts   []*C.svm_node_t
 }
 
 func NewProblem() *Problem {
-	cProblem := C.gosvm_problem_new()
-	problem := &Problem{cProblem}
-
-	runtime.SetFinalizer(problem, func(p *Problem) {
-		C.gosvm_problem_free(p.problem)
-	})
-
+	cProblem := newProblem()
+	problem := &Problem{cProblem, nil}
+	runtime.SetFinalizer(problem, finalizeProblem)
 	return problem
+}
+
+func finalizeProblem(p *Problem) {
+	for _, nodes := range p.insts {
+		C.gosvm_nodes_free(nodes)
+	}
+	p.insts = nil
+	C.gosvm_problem_free(p.problem)
 }
 
 // Convert a dense feature vector, represented as a slice of feature
@@ -68,7 +76,7 @@ func FromDenseVector(denseVector []float64) FeatureVector {
 }
 
 func cNodes(nodes []FeatureValue) *C.svm_node_t {
-	n := C.gosvm_nodes_new(C.size_t(len(nodes)))
+	n := newNodes(C.size_t(len(nodes)))
 
 	for idx, val := range nodes {
 		C.gosvm_nodes_put(n, C.size_t(idx), C.int(val.Index), C.double(val.Value))
@@ -77,16 +85,46 @@ func cNodes(nodes []FeatureValue) *C.svm_node_t {
 	return n
 }
 
-func (problem *Problem) Add(trainInst TrainingInstance) {
+func (problem *Problem) Add(trainInst TrainingInstance) error {
+	if err := verifyFeatureIndices(trainInst.Features); err != nil {
+		return err
+	}
+
 	features := sortedFeatureVector(trainInst.Features)
 
-	nodes := C.gosvm_nodes_new(C.size_t(len(features)))
+	nodes := newNodes(C.size_t(len(features)))
+	problem.insts = append(problem.insts, nodes)
 
 	for idx, val := range features {
 		C.gosvm_nodes_put(nodes, C.size_t(idx), C.int(val.Index), C.double(val.Value))
 	}
 
 	C.gosvm_problem_add_train_inst(problem.problem, nodes, C.double(trainInst.Label))
+
+	return nil
+}
+
+// Function prototype for iteration over problems. The function should return
+// 'true' if the iteration should continue or 'false' otherwise.
+type ProblemIterFunc func(instance *TrainingInstance) bool
+
+// Iterate over the training instances in a problem.
+func (problem *Problem) Iterate(fun ProblemIterFunc) {
+	for i := 0; i < int(problem.problem.l); i++ {
+		label := float64(C.gosvm_get_double_idx(problem.problem.y, C.int(i)))
+		cNodes := C.gosvm_nodes_vector_get(problem.problem, C.size_t(i))
+
+		fVals := make(FeatureVector, 0)
+		var j C.size_t
+		for j = 0; C.gosvm_nodes_get(cNodes, j).index != -1; j++ {
+			cNode := C.gosvm_nodes_get(cNodes, j)
+			fVals = append(fVals, FeatureValue{int(cNode.index), float64(cNode.value)})
+		}
+
+		if !fun(&TrainingInstance{label, fVals}) {
+			break
+		}
+	}
 }
 
 // Helper functions
@@ -98,6 +136,17 @@ func sortedFeatureVector(fv FeatureVector) FeatureVector {
 	sort.Sort(byIndex{sorted})
 
 	return sorted
+}
+
+func verifyFeatureIndices(featureVector FeatureVector) error {
+	for _, fv := range featureVector {
+		if fv.Index < 1 {
+			return errors.New(
+				fmt.Sprintf("Feature index should be at least one: %d:%f", fv.Index, fv.Value))
+		}
+	}
+
+	return nil
 }
 
 // Interface for sorting of feature vectors by feature index.
