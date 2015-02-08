@@ -22,7 +22,7 @@ func DefaultParameters() Parameters {
 	return Parameters{
 		NewCSVC(1),
 		NewLinearKernel(),
-		1,
+		100,
 		0.001,
 		false,
 		false}
