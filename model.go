@@ -63,7 +63,7 @@ func LoadModel(filename string) (*Model, error) {
 }
 
 // Get a slice with class labels
-func (model *Model) labels() []int {
+func (model *Model) Labels() []int {
 	if model.labelCache != nil {
 		labels := make([]int, len(model.labelCache))
 		copy(labels, model.labelCache)
@@ -83,7 +83,7 @@ func (model *Model) labels() []int {
 
 	model.labelCache = make([]int, len(labels))
 	copy(model.labelCache, labels)
-	
+
 	return labels
 }
 
@@ -94,12 +94,49 @@ func (model *Model) Predict(nodes []FeatureValue) float64 {
 	return float64(C.svm_predict_wrap(model.model, cn))
 }
 
+// Predict the label of an instance and return the decision values. In the
+// case of a one class, epsilon-SVR, and nu-SVR, there is only one decision
+// value. In other cases, this will be a list containing the decision values
+// of label1 vs label2 ... label1 vs labelN, label2 vs label3 ... label2 vs
+// labelN, etc.
+func (model *Model) PredictDecisionValues(nodes []FeatureValue) (float64, []float64, error) {
+	// Allocate sparse C feature vector.
+	cn := cNodes(nodes)
+	defer C.gosvm_nodes_free(cn)
+
+	svmType := model.model.param.svm_type
+	var size int
+	if (svmType == C.ONE_CLASS || svmType == C.EPSILON_SVR || svmType == C.NU_SVR) {
+		size = 1
+	} else {
+		size = int(model.model.nr_class) * (int(model.model.nr_class) - 1) / 2
+	}
+
+	// Allocate C array for decision values.
+	cValues := newDouble(C.size_t(size))
+	defer C.free(unsafe.Pointer(cValues))
+
+	r := C.svm_predict_values_wrap(model.model, cn, cValues)
+
+	// Store in a Go slice
+	values := make([]float64, size)
+	for i := 0; i < size; i++ {
+		values[i] = float64(C.gosvm_get_double_idx(cValues, C.int(i)))
+	}
+
+	return float64(r), values, nil
+}
+
 // Predict the label of an instance, given a model with probability
 // information. This method returns the label of the predicted class,
 // a map of class probabilities. Probability estimates are currently
 // given for logistic regression only. If another solver is used,
 // the probability of each class is zero.
 func (model *Model) PredictProbability(nodes []FeatureValue) (float64, map[int]float64, error) {
+	if C.svm_check_probability_model_wrap(model.model) == 0 {
+		return 0, nil, errors.New("Model was not trained to do probability estimates")
+	}
+
 	// Allocate sparse C feature vector.
 	cn := cNodes(nodes)
 	defer C.gosvm_nodes_free(cn)
@@ -111,7 +148,7 @@ func (model *Model) PredictProbability(nodes []FeatureValue) (float64, map[int]f
 	r := C.svm_predict_probability_wrap(model.model, cn, cProbs)
 
 	// Store the probabilities in a slice
-	labels := model.labels()
+	labels := model.Labels()
 	probs := make(map[int]float64)
 	for idx, label := range labels {
 		probs[label] = float64(C.gosvm_get_double_idx(cProbs, C.int(idx)))
