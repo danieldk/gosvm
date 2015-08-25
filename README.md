@@ -24,3 +24,9 @@ The package documentation is available at: http://go.pkgdoc.org/github.com/danie
 Examples for using gosvm can be found at:
 
 https://github.com/danieldk/gosvm-examples
+
+## Links
+
+There is a port of libsvm to Go (rather than a binding) at:
+
+https://github.com/ewalker544/libsvm-go
