@@ -19,6 +19,12 @@ The <tt>go</tt> command can be used to install this package:
 
 The package documentation is available at: http://go.pkgdoc.org/github.com/danieldk/gosvm
 
+## OpenMP
+
+If you wish to use <tt>libsvm</tt> with OpenMP support for multicore processing, please use this command to install the package:
+
+    CGO_LDFLAGS="-lgomp" go get github.com/danieldk/gosvm
+
 ## Examples
 
 Examples for using gosvm can be found at:
